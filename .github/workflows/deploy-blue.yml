@@ -1,0 +1,42 @@
+name: Deploy Blue
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  CHART_REF: oci://ghcr.io/mpegushin/test-helm-chart/test-service
+  CHART_VERSION: 1.0.0
+
+jobs:
+  deploy-blue:
+    runs-on: ubuntu-latest
+    env:
+      NAMESPACE: blue
+      RELEASE: test-service
+      IMAGE_NAME: ghcr.io/${{ github.repository }}
+      IMAGE_TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${KUBE_CONFIG}" | base64 -d > ~/.kube/config
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+
+      - uses: azure/setup-helm@v4
+
+      - name: Helm upgrade/install
+        run: |
+          helm upgrade --install "${RELEASE}" "${CHART_REF}" \
+            --namespace "${NAMESPACE}" \
+            --version "${CHART_VERSION}" \
+            --set namespace="${NAMESPACE}" \
+            --set image.name="${IMAGE_NAME}" \
+            --set image.tag="${IMAGE_TAG}" \
+            --wait --timeout 5m

@@ -41,3 +41,11 @@ jobs:
             --set image.name="${IMAGE_NAME}" \
             --set image.tag="${IMAGE_TAG}" \
             --wait --timeout 5m
+
+      - name: Shift traffic to BLUE (100/0)
+        run: |
+          kubectl -n kube-system patch ingressroute blue-green-router --type='json' -p='[
+            {"op":"replace","path":"/spec/routes/0/services/0/weight","value":100},
+            {"op":"replace","path":"/spec/routes/0/services/1/weight","value":0}
+          ]'
+    

@@ -17,7 +17,7 @@ jobs:
     env:
       NAMESPACE: green
       RELEASE: test-service
-      IMAGE_NAME: ghcr.io/${{ github.repository }}
+      IMAGE_NAME: ${{ github.repository }}
       IMAGE_TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4

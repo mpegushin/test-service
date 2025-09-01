@@ -32,6 +32,13 @@ jobs:
 
       - uses: azure/setup-helm@v4
 
+      - name: Helm login to GHCR
+        run: |
+          echo "${TOKEN}" | helm registry login ghcr.io --username "${ACTOR}" --password-stdin
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+
       - name: Helm upgrade/install
         run: |
           helm upgrade --install "${RELEASE}" "${CHART_REF}" \

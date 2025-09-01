@@ -22,14 +22,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure kubeconfig
+      - name: Configure kubeconfig from secret
         run: |
-          mkdir -p ~/.kube
-          echo "${KUBE_CONFIG}" | base64 -d > ~/.kube/config
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
       - uses: azure/setup-helm@v4
+
+      - name: Helm login to GHCR
+        run: |
+          echo "${TOKEN}" | helm registry login ghcr.io --username "${ACTOR}" --password-stdin
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
 
       - name: Helm upgrade/install (green)
         run: |

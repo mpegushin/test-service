@@ -21,6 +21,9 @@ The project uses GitHub Actions pipelines:
   2. Build the Docker image  
   3. Push the image to `ghcr.io`
 
+  Executed only if all tests pass successfully
+
+
 - **Deployment**  
   Two manual (`workflow_dispatch`) jobs are available:
   - Deploy the service using a **blue/green** strategy  
